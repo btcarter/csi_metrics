@@ -1,0 +1,425 @@
+---
+title: "CSI Metrics 2021"
+author: "Geoffrey Williams, MD, PhD\nJeannine Brant, PhD"
+date: "Generated: `r Sys.time()`"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+  powerpoint_presentation:
+    df_print: "kable"
+    slide_level: 2
+    # reference_doc: "style_template.pptx"
+params:
+  format: "markdown"
+  ar_stratify: "race"
+  year: 2021
+---
+
+```{r echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, 
+                      error=FALSE, 
+                      warning=FALSE, 
+                      echo = FALSE)
+
+# load libraries
+list.of.packages <- c("tidyverse", 
+                      "ggplot2")
+
+# compare the list to the installed packages list and add missing packages to new list
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+
+# install missing packages
+if(length(new.packages)) install.packages(new.packages, dependencies = TRUE)
+meh <- lapply(list.of.packages,library,character.only = TRUE)
+rm(meh)
+
+if (params$format == "markdown"){
+  cg_format <- "markdown"
+} else {
+  cg_format <- "html"
+}
+
+REP_YEAR <- params$year
+```
+
+# CSI Overview
+
+## Team 
+
+```{r}
+df_investigators %>% 
+  filter(
+    department == "CSI"
+  ) %>% 
+  select(
+    Name = name,
+    Degree = degree,
+    Role = role,
+    `FTE Status` = fte_status
+  ) %>% 
+  knitr::kable(
+    format = "simple"
+  )
+```
+
+## Resources
+
+### Data
+
+- Access to EDW
+- Cerner LHN and RWD
+- Local HPC
+
+### Financial
+
+- Total Grant Monies
+- Organization Funds
+
+# Investigation Pipeline
+
+## Current Studies
+
+```{r}
+df_studies %>% 
+  ggplot(
+    aes(x = study_stage)
+  ) + 
+  geom_bar() +
+  theme_classic() +
+  labs(
+    title = "CSI Supported Studies",
+    x = "Stage",
+    y = "Count"
+  )
+
+```
+
+## Current Studies by Program
+
+```{r}
+df_studies %>% 
+  ggplot(
+    aes(x = study_stage
+        ,fill = Program
+        )
+  ) + 
+  geom_bar() +
+  theme_classic() +
+  labs(
+    title = "CSI Supported Studies",
+    x = "Stage",
+    y = "Count"
+  )
+```
+
+## Study Summary by Activity
+
+```{r}
+df_studies %>% 
+  ggplot(
+    aes(x = study_stage,
+        fill = activity_status)
+  ) + 
+  geom_bar() +
+  theme_classic() +
+  labs(
+    title = "CSI Supported Studies",
+    x = "Stage",
+    y = "Count",
+    fill = "Activity Status"
+  )
+```
+
+## Studies by Program and Activity
+
+```{r}
+df_studies %>% 
+  ggplot(
+    aes(x = Program,
+        fill = activity_status)
+  ) +
+  geom_bar() +
+  theme_classic() +
+  labs(
+    title = "Study Activity by Program",
+    x = "Program",
+    y = "Count",
+    fill = "Activity Status"
+  ) +
+  coord_flip()
+```
+
+
+# Dissemination Pipeline
+
+## 2021 Publications
+
+```{r}
+
+df_manuscripts %>% 
+  filter(
+    Year == "2021"
+  ) %>% 
+  ggplot(
+    aes(
+      x = type
+    )
+  ) +
+  geom_bar() +
+  theme_classic() +
+  labs(
+    title = "2021 Publications",
+    x = "Type",
+    y = "Count"
+  )
+
+```
+
+## Publications by Year
+
+```{r}
+df_manuscripts %>% 
+  ggplot(
+    aes(
+      x = type,
+      fill = as.character(Year)
+    )
+  ) +
+  geom_bar(stat = "count",
+           position = "dodge") +
+  theme_classic() +
+  labs(
+    title = "Publications",
+    x = "Type",
+    y = "Count",
+    fill = "Year"
+  ) 
+
+df_manuscripts %>%  
+  ggplot(
+    aes(
+      x = as.character(Year)
+    )
+  ) +
+  geom_bar(stat = "count") +
+  theme_classic() +
+  labs(
+    title = "Publications",
+    x = "Year",
+    y = "Count"
+  ) +
+  facet_wrap(type~.)
+
+df_manuscripts %>% 
+  group_by(
+    Year,
+    type
+  ) %>% 
+  summarise(
+    N = n()
+  ) %>%
+  ungroup() %>% 
+  ggplot(
+    aes(
+      x = Year,
+      y = N
+    )
+  ) +
+  geom_point() +
+  geom_line() +
+  theme_classic() +
+  labs(
+    title = "Publications",
+    x = "Year",
+    y = "Count"
+  ) +
+  facet_wrap(type~.)
+
+
+table(df_manuscripts$type,df_manuscripts$Year)
+
+```
+
+## Citations by PubMed Indexed Articles
+
+```{r}
+df_man_meta %>% 
+  ggplot(
+    aes(
+      x = year
+    )
+  ) +
+  geom_bar(
+    stat = "count"
+  ) +
+  theme_classic() +
+  labs(
+    title = "Cumulative Citations by PubMed Articles",
+    x = "Year Published",
+    y = "Count",
+    caption = "Citations are aggregated according to the year of the cited article. Citations were identified via iCite, an API provided by the National Library of Medicine. Articles not yet assigned a PMID not included."
+  )
+```
+
+## Citations
+
+## Most Cited Article
+
+```{r results='asis'}
+tmp <- 
+  df_man_meta %>% 
+  arrange(
+    desc(citation_count)
+  ) %>% 
+  head(1) %>% 
+  select(
+    year,
+    authors,
+    title,
+    journal,
+    citation_count
+  )
+
+tmp <- paste("\n\n",
+             tmp$year,
+             ". ",
+             tmp$title,
+             " *",
+             tmp$journal,
+             "*",
+             sep = "")
+
+cat(tmp)
+
+```
+
+
+# FTE Workload
+
+## CSI Personnel Load
+
+```{r}
+df_si_key %>% 
+  left_join(
+    df_investigators,
+    by = "investigator_id"
+  ) %>%
+  left_join(
+    df_studies,
+    by = "study_id"
+  ) %>% 
+  filter(
+    organization == "Billings Clinic",
+    department == "CSI"
+  ) %>% 
+  group_by(
+    name,
+    Program
+  ) %>% 
+  summarise(
+    count = n()
+  ) %>% 
+  ggplot(
+    aes(x = reorder(name,count),
+        y = count,
+        fill = Program)
+  ) +
+  geom_bar(stat='identity') +
+  coord_flip() +
+  theme_classic() +
+  labs(
+    title = "Studies supported by personnel",
+    x = "Name",
+    y = "Count"
+  )
+```
+
+## Scientist Load
+
+```{r}
+df_si_key %>% 
+  left_join(
+    df_investigators,
+    by = "investigator_id"
+  ) %>%
+  left_join(
+    df_studies,
+    by = "study_id"
+  ) %>% 
+  filter(
+    organization == "Billings Clinic",
+    department == "CSI",
+    role == "Scientist"
+  ) %>% 
+  group_by(
+    name,
+    Program
+  ) %>% 
+  summarise(
+    count = n()
+  ) %>% 
+  ggplot(
+    aes(x = reorder(name,count),
+        y = count,
+        fill = Program)
+  ) +
+  geom_bar(stat='identity') +
+  coord_flip() +
+  theme_classic() +
+  labs(
+    title = "Studies supported by personnel",
+    x = "Name",
+    y = "Count"
+  )
+```
+
+## Publications Report
+
+# Funding
+
+# Highlights
+
+## Trauma
+
+## Magnate
+
+## MOONSHOT
+
+# Key Performance Indicators
+
+## Primary
+
+- Total Publications for `r REP_YEAR`: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR,])`
+- Journal Publications: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR & df_manuscripts$type == "Journal",])`
+- Trauma: 10
+- MAGNATE: 10
+- Grant 1: 10
+
+## Efficiency Indicators
+
+- Publications/proposal - need to table linking pubs to proposals
+- Publications/submission - table linking submissions to pubs
+- Manuscripts/dataset - table linking manuscripts to datasets
+- Manuscripts/proposal - table linking manuscripts to proposal
+- Work hours/proposal - need employee timetracking sheets
+- Work hours/dataset - need employee timetracking sheets
+- Work hours/analysis - need employee timetracking sheets
+- Work hours/manuscript - need employee timetracking sheets
+
+## Financial Indicators
+
+- Cost/publication - need expense data
+
+# Financial 
+## Expenses
+## Revenue
+## Maintained
+- Grant 1 - $500,000
+
+## New
+- New Grant 2 - $350,000
+
+## Total Revenue - $111,111,111
+## Savings to Organization

@@ -1,0 +1,46 @@
+# Preamble ####
+# Auther: Benjamin T. Carter, PhD
+# Objective - create CSI portfolio reports and slides
+
+# vars
+SCRIPT_DIR = file.path("C:",
+                       "Users",
+                       "CarteB",
+                       "BILLINGS CLINIC",
+                       "Collaborative Science & Innovation (CSI) - Documents",
+                       "Ye Olde V Drive",
+                       "STAFF Folders",
+                       "Ben",
+                       "csi_portfolio"
+                       )
+
+OUT_DIR = file.path("C:",
+                    "Users",
+                    "CarteB",
+                    "BILLINGS CLINIC",
+                    "Collaborative Science & Innovation (CSI) - Documents",
+                    "Ye Olde V Drive",
+                    "STAFF Folders",
+                    "Ben",
+                    "csi_portfolio_output"
+                    )
+
+
+# run preprocessing - this returns a dataframe to the global environment called 
+#                     'df' for use in the scripts that follow. Changes here will
+#                     change thinge everywhere!
+
+source(file = file.path(SCRIPT_DIR,
+                        "preprocessing.R"))
+
+# DEPARTMENT REPORT ####
+rmarkdown::render(
+  input = file.path(SCRIPT_DIR,
+                    "report_department.Rmd"),
+  output_format = c("html_document", "powerpoint_presentation"),
+  output_dir = OUT_DIR,
+  output_file = c("general_report",
+                  "general_report")
+)
+
+# CREATE INVESTIGATOR REPORTS
