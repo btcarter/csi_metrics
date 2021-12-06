@@ -1,0 +1,221 @@
+---
+title: "Publications & Presentations"
+author: "Collaborative Science & Innovation"
+date: "Generated: `r Sys.time()`"
+output:
+  html_document:
+    code_folding: hide
+    toc: false
+---
+
+```{r echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, 
+                      error=FALSE, 
+                      warning=FALSE, 
+                      echo = FALSE)
+```
+
+```{r}
+# load libraries
+list.of.packages <- c("dplyr")
+
+# compare the list to the installed packages list and add missing packages to new list
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+
+# install missing packages
+if(length(new.packages)) install.packages(new.packages, dependencies = TRUE)
+
+# load packages
+meh <- lapply(list.of.packages,library,character.only = TRUE)
+rm(meh)
+
+# make a list of publication_ids for pubs authored by CSI personnel
+csi_pub_ids <- full_join(
+  df_authors,
+  df_pub_auth_key,
+  by = "investigator_id"
+) %>% 
+  filter(
+    department == "CSI"
+  ) %>% 
+  select(
+    publication_id
+  ) %>% 
+  distinct()
+
+csi_pub_ids <- csi_pub_ids$publication_id
+
+# make a dataframe with citation information and write a column with full citation in markdown
+df_report_citations <- df_authors %>% 
+  full_join(
+    df_pub_auth_key,
+    by = "investigator_id"
+  ) %>% 
+  mutate(
+    authors = if_else(
+      !is.na(profile_site),
+      paste("[",
+            pm_name,
+            "](",
+            site,
+            ")",
+            sep = ""),
+      pm_name
+    )
+  ) %>%
+  mutate(
+    authors_bolding = if_else(
+      department == "CSI",
+      paste("**",
+            authors,
+            "**",
+            sep = ""),
+      authors
+    )
+  ) %>% 
+  mutate(
+    authors = if_else(
+      is.na(authors_bolding),
+      authors,
+      authors_bolding
+    )
+  ) %>% 
+  group_by(
+    publication_id
+  ) %>% 
+  arrange(
+    auth_order
+  ) %>% 
+  mutate(
+    authors = paste(authors,
+                    collapse = ", ")
+  ) %>% 
+  select(
+    publication_id,
+    authors
+  ) %>% 
+  distinct() %>% 
+  ungroup() %>% 
+  full_join(
+    df_dissem,
+    by = "publication_id"
+  ) %>% 
+  filter(
+    include == TRUE
+  ) %>% 
+  mutate(
+    citation_title = if_else(
+      !is.na(url),
+      paste("[",
+            title,
+            "](",
+            url,
+            ")",
+            sep = ""),
+      title
+    )
+  ) %>% 
+  mutate(
+    citation = paste(
+      authors,
+      ". (",
+      year,
+      "). ",
+      citation_title,
+      " ",
+      pub_venue,
+      ".",
+      sep = ""
+    )
+  ) %>% 
+  select(
+    publication_id,
+    type,
+    citation,
+    year
+  ) %>% 
+  filter(
+    publication_id %in% csi_pub_ids &
+      !is.na(publication_id)
+  )
+
+```
+
+# Publications
+
+```{r results='asis'}
+
+tmp <- df_report_citations %>% 
+  filter(
+    type == "Journal"
+  )
+
+years <- unique(tmp$year) %>% sort(decreasing = TRUE)
+
+
+for (i in years){
+  mssg <- paste("\n\n## ",
+                i,
+                "\n\n",
+                sep = "")
+  
+  cat(mssg)
+  
+  mssg <- tmp %>% 
+    filter(
+      year == i
+    ) %>% 
+    arrange(desc(publication_id)) %>% 
+    select(citation) %>% 
+    mutate(
+      blurb = paste(citation,
+                    collapse = "\n\n")
+    ) %>% 
+    select(blurb) %>% 
+    distinct()
+  
+  cat(mssg$blurb)
+  
+}
+
+```
+
+# Presentations
+
+```{r results='asis'}
+
+tmp <- df_report_citations %>% 
+  filter(
+    grepl(".*resentation.*",
+          type)
+  )
+
+years <- unique(tmp$year) %>% sort(decreasing = TRUE)
+
+
+for (i in years){
+  mssg <- paste("\n\n## ",
+                i,
+                "\n\n",
+                sep = "")
+  
+  cat(mssg)
+  
+  mssg <- tmp %>% 
+    filter(
+      year == i
+    ) %>% 
+    arrange(desc(publication_id)) %>% 
+    select(citation) %>% 
+    mutate(
+      blurb = paste(citation,
+                    collapse = "\n\n")
+    ) %>% 
+    select(blurb) %>% 
+    distinct()
+  
+  cat(mssg$blurb)
+  
+}
+
+```

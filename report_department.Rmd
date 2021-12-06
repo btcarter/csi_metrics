@@ -44,6 +44,37 @@ if (params$format == "markdown"){
 REP_YEAR <- params$year
 ```
 
+# What is this?
+
+- It's just a slide deck of ideas.
+- Prototype report - i.e. unpolished, probably out of order and using a combination of real and fabricated data. Its a intellectual construction zone *so watch your step.*
+- I've been experimenting with various methods and metrics CSI could use to report on it's activities to stakeholders, methods of identifying needs and documenting success.
+- Goals:
+  - Give CSI as much *useful* information as possible for planning and troubleshooting purposes.
+  - Automate as much as possible so using it for RCC Metrics and the like is less time consuming.
+  - Automate as much as possible so referring to it often is actually possible.
+  - Make it something we could host in a dashboard for regular viewing.
+  
+
+
+## Outline
+
+- **CSI Overview** - Description of CSI's resources.
+- **Investigational Pipeline** - Methods of looking at our efficiency.
+- **Dissemination** - Measures of publication success.
+- **Highlights** - Manually assembled slides, basically just a placeholder for the big successes we want to see individually.
+- **Key Performance indicators** - Metrics for describing our success and efficiency.
+- **Financial** 
+  - How have we used our money?
+  - What are we seeking? What do we need?
+  - Are we competitive relative to the "guns for hire?"
+- **Personnel Load** - Ways at describing workload balance across individuals.
+- **Ideas for marketing** - self explanatory.
+
+---
+
+![ - Tim](http://www.quickmeme.com/img/f7/f7aa3ce72feed0a88c9401b5b51bc667e0fdb33d233b69c2c786f94c578bdd8e.jpg)
+
 # CSI Overview
 
 ## Team 
@@ -74,8 +105,13 @@ df_investigators %>%
 
 ### Financial
 
-- Total Grant Monies
-- Organization Funds
+- Total Grant Monies: $1b
+- Organization Funds: $\infty$
+
+### Partnerships
+
+- MSU College of Nursing
+- MSU Engineering School
 
 # Investigation Pipeline
 
@@ -87,6 +123,23 @@ df_studies %>%
     aes(x = study_stage)
   ) + 
   geom_bar() +
+  theme_classic() +
+  labs(
+    title = "CSI Supported Studies",
+    x = "Stage",
+    y = "Count"
+  )
+
+df_studies %>% 
+  ggplot(
+    aes(x = study_stage
+        )
+  ) + 
+  geom_bar() +
+  coord_polar(
+    theta = "x",
+    direction = 1
+  ) +
   theme_classic() +
   labs(
     title = "CSI Supported Studies",
@@ -106,6 +159,24 @@ df_studies %>%
         )
   ) + 
   geom_bar() +
+  theme_classic() +
+  labs(
+    title = "CSI Supported Studies",
+    x = "Stage",
+    y = "Count"
+  )
+
+df_studies %>% 
+  ggplot(
+    aes(x = study_stage
+        ,fill = Program
+        )
+  ) + 
+  geom_bar() +
+  coord_polar(
+    theta = "x",
+    direction = 1
+  ) +
   theme_classic() +
   labs(
     title = "CSI Supported Studies",
@@ -152,7 +223,39 @@ df_studies %>%
 ```
 
 
-# Dissemination Pipeline
+## Personnel Work Hours
+
+```{r}
+
+data.frame(perc_time = c(0.5,
+                         0.3,
+                         0.2,
+                         0.3,
+                         0.0,
+                         0.1,
+                         0.0
+                         ),
+           study_stage = unique(df_studies$study_stage)) %>% 
+  ggplot(
+    aes(
+      x = study_stage,
+      y = perc_time
+    )
+  ) +
+  geom_col() +
+  coord_polar() +
+  theme_minimal() +
+  labs(
+    title = "Percent Work Hours by Stage",
+    x = "",
+    y = ""
+  ) +
+  theme(axis.text.y = element_blank())
+
+```
+
+
+# Dissemination
 
 ## 2021 Publications
 
@@ -248,11 +351,12 @@ table(df_manuscripts$type,df_manuscripts$Year)
 df_man_meta %>% 
   ggplot(
     aes(
-      x = year
+      x = year,
+      y = citation_count
     )
   ) +
   geom_bar(
-    stat = "count"
+    stat = "sum"
   ) +
   theme_classic() +
   labs(
@@ -262,8 +366,6 @@ df_man_meta %>%
     caption = "Citations are aggregated according to the year of the cited article. Citations were identified via iCite, an API provided by the National Library of Medicine. Articles not yet assigned a PMID not included."
   )
 ```
-
-## Citations
 
 ## Most Cited Article
 
@@ -295,8 +397,110 @@ cat(tmp)
 
 ```
 
+# Highlights
 
-# FTE Workload
+## Trauma
+- Started Research Teams, got 8 manuscripts ready to go by December
+- Critical Care Team A - 2 proposals, 3 manuscripts
+- Critical Care Team B - 3 proposals, 2 manuscripts
+- Nursing Team - 2 proposals, 4 manuscripts
+- Neuro/Ortho Team - 2 proposals
+
+## Magnet
+- 3 studies
+- 4 new PIs
+
+## MOONSHOT
+- Placeholder
+
+# Key Performance Indicators
+
+These are all potential methods I came up with to measure the performance of CSI in terms of productivity and efficiency in producing research and supporting organizational priorities.
+
+## Primary
+
+- Total Publications for `r REP_YEAR`: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR,])`
+  - Journal Publications: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR & df_manuscripts$type == "Journal",])`
+  - Trauma: 10
+  - MAGNATE: 10
+  - Grant 1: 10
+- Department Impact factor: $Citations\ of\ year/publications_{year-1} + publications_{year-2}$
+
+## Efficiency Indicators
+
+We'll have to build some tables and databases to support these:
+
+- Time in Backlog
+- Ratio of study Active/Inactive time
+- Publications/proposal - need to table linking pubs to proposals
+- Publications/submission - need table linking submissions to pubs
+- Manuscripts/dataset - need table linking manuscripts to datasets
+- Manuscripts/proposal - need table linking manuscripts to proposal
+- Manuscripts/dataset - need table linking dataset to manuscripts
+- Work hours/proposal - need employee timetracking sheets
+- Work hours/dataset - need employee timetracking sheets
+- Work hours/analysis - need employee timetracking sheets
+- Work hours/manuscript - need employee timetracking sheets
+
+## Financial Indicators
+
+- Cost/publication - need expense data
+- Publications/Dollar spent
+- Cost/Trauma publication
+- FTE by role per publication/production stage
+
+# Financial 
+## Expenses
+
+```{r}
+
+data.frame(cost = c(50000,
+                    25000,
+                    30000),
+           program = c("Trauma", 
+                       "Magnate", 
+                       "Miscellaneous")) %>% 
+  ggplot(
+    aes(
+      x = "",
+      y = cost,
+      fill = program
+    )
+  ) +
+  geom_col() +
+  coord_polar(theta = "y") +
+  theme_minimal() +
+  labs(
+    x = "",
+    y = "",
+    fill = "Program"
+  )
+
+```
+
+
+## Grants/Revenue
+
+### Maintained
+- MOONSHOT - $500,000
+
+### Pending
+- HRSA - $350,000
+
+### Total Revenue for 2021
+ - $111,111,111
+
+## Savings to Organization
+
+The existence of "guns for hire" for getting ACS Level 1 certification means we have external competition. The best protection against this is a demonstration of our market value (everything we've demonstrated so far) plus a show of how much money we save the organization relative to that competition. This builds the case for our mainanence and expansion.
+
+This would be displayed basically as Our Costs - Competition Costs = Net Savings
+
+# Personnel Load
+
+## Purpose
+
+This section discusses things that can be used to assess the workload across the organization, who has capacity for extra projects, and who could use a break.
 
 ## CSI Personnel Load
 
@@ -375,51 +579,68 @@ df_si_key %>%
   )
 ```
 
-## Publications Report
+## Work Hours Use
 
-# Funding
+- How are work hours used by role on each program? Each stage of the scientific process? By role?
+- Could show by as proportion of FTE, total hours, etc.
 
-# Highlights
+```{r}
+df_ts %>% 
+  group_by(
+    id_type
+  ) %>% 
+  summarise(
+    time = sum(time, na.rm = TRUE)
+  ) %>% 
+  ggplot(
+    aes(
+      x = "",
+      y = time,
+      fill = id_type
+    )
+  ) +
+  geom_col() +
+  coord_polar(theta = "y") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    title = "Where does the time go?",
+    x = "",
+    y = "",
+    fill = "Activity"
+  )
+```
 
-## Trauma
 
-## Magnate
 
-## MOONSHOT
+# Ideas for Marketing
 
-# Key Performance Indicators
+What follows are some ideas for new things we should be tracking at least internally to measure our imapct in the scientific community.
 
-## Primary
+## Internal
 
-- Total Publications for `r REP_YEAR`: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR,])`
-- Journal Publications: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR & df_manuscripts$type == "Journal",])`
-- Trauma: 10
-- MAGNATE: 10
-- Grant 1: 10
+- BC Grand Rounds Presentations: 4
+- Nursing Grand Rounds Presentations: 3
 
-## Efficiency Indicators
+## Scientific Conferences
 
-- Publications/proposal - need to table linking pubs to proposals
-- Publications/submission - table linking submissions to pubs
-- Manuscripts/dataset - table linking manuscripts to datasets
-- Manuscripts/proposal - table linking manuscripts to proposal
-- Work hours/proposal - need employee timetracking sheets
-- Work hours/dataset - need employee timetracking sheets
-- Work hours/analysis - need employee timetracking sheets
-- Work hours/manuscript - need employee timetracking sheets
+- Symposia: 3
+- Posters: 4
+- Podium: 2
 
-## Financial Indicators
+## Media
 
-- Cost/publication - need expense data
+### New
 
-# Financial 
-## Expenses
-## Revenue
-## Maintained
-- Grant 1 - $500,000
+- LinkedIn/ResearchGate articles - clicks, links, comments, etc.
+- Videos produced: 4
 
-## New
-- New Grant 2 - $350,000
+### Old
 
-## Total Revenue - $111,111,111
-## Savings to Organization
+- Billings Gazette articles: 5
+- National Gazette articles: 5
+- TV/Radio appearances: 4
+
+# Thoughts

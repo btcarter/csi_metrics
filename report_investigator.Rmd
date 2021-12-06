@@ -1,0 +1,72 @@
+---
+title: "Investigator Portfolio"
+author: "Benjamin T. Carter, PhD"
+date: "Generated: `r Sys.time()`"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+  powerpoint_presentation:
+    df_print: "kable"
+    slide_level: 2
+    # reference_doc: "style_template.pptx"
+params:
+  format: "markdown"
+  ar_stratify: "race"
+  year: 2021
+  author: "Benjamin T Carter"
+---
+
+```{r echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, 
+                      error=FALSE, 
+                      warning=FALSE, 
+                      echo = FALSE)
+
+# load libraries
+list.of.packages <- c("tidyverse", 
+                      "ggplot2")
+
+# compare the list to the installed packages list and add missing packages to new list
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+
+# install missing packages
+if(length(new.packages)) install.packages(new.packages, dependencies = TRUE)
+meh <- lapply(list.of.packages,library,character.only = TRUE)
+rm(meh)
+
+if (params$format == "markdown"){
+  cg_format <- "markdown"
+} else {
+  cg_format <- "html"
+}
+
+REP_YEAR <- params$year
+author_id <- params$author
+```
+
+# Questions this should answer:
+
+1. How many proposals have I completed?
+2. How many grants have I submitted? Won?
+3. How many databases have I created or opened?
+4. How many analyses have I completed?
+5. How many manuscripts have I authored?
+6. How many manuscripts have I supported?
+7. How many publications have I produced?
+8. How many publications have I supported?
+7. How have I spent my time while doing the above?
+8. How could I be more efficient?
+9. How much is my work disseminated?
+10. How effective is my dissemination?
+11. Who are my coauthors?
+12. Who cite's my work?
+
+# 2021 Summary
+```{r}
+
+
+
+```
+

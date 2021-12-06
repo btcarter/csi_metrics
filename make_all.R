@@ -33,14 +33,32 @@ OUT_DIR = file.path("C:",
 source(file = file.path(SCRIPT_DIR,
                         "preprocessing.R"))
 
-# DEPARTMENT REPORT ####
+# DEPARTMENT PUBLCATION CV ####
 rmarkdown::render(
   input = file.path(SCRIPT_DIR,
-                    "report_department.Rmd"),
-  output_format = c("html_document", "powerpoint_presentation"),
+                    "report_pubs_list.Rmd"),
+  output_format = c("html_document",
+                    "word_document",
+                    "md_document"),
   output_dir = OUT_DIR,
-  output_file = c("general_report",
-                  "general_report")
+  output_file = c("dept_pubs.html",
+                  "dept_pubs.docx",
+                  "dept_pubs.md")
 )
 
+# DEPARTMENT REPORT ####
+# rmarkdown::render(
+#   input = file.path(SCRIPT_DIR,
+#                     "report_department.Rmd"),
+#   output_format = c("html_document" 
+#                     ,"powerpoint_presentation"
+#   ),
+#   output_dir = OUT_DIR,
+#   output_file = c("general_report1"
+#                   ,"general_report1"
+#   )
+# )
+
 # CREATE INVESTIGATOR REPORTS
+
+

@@ -1,38 +1,53 @@
-# Get data and process it
+# This script will get data and process it so it's ready for various reports
+
+# libraries
 library(dplyr)
 library(readxl)
 library(scholar)
 library(httr)
 library(jsonlite)
+library(tidyr)
 
-# load admin data
-fl_nm <- file.path("C:",
-                   "Users",
-                   "CarteB",
-                   "BILLINGS CLINIC",
-                   "Collaborative Science & Innovation (CSI) - Documents",
-                   "Ye Olde V Drive",
-                   "ADMINISTRATIVE",
-                   "CSI Research Projects.xlsx")
+# load log data
+fl_log <- file.path("C:",
+                    "Users",
+                    "CarteB",
+                    "BILLINGS CLINIC",
+                    "Collaborative Science & Innovation (CSI) - Documents",
+                    "Ye Olde V Drive",
+                    "RESEARCH COORDINATION COUNCIL",
+                    "CSI Metrics",
+                    "prototype_log.xlsx")
 
-fl_nm_dissem <- file.path("C:",
-                          "Users",
-                          "CarteB",
-                          "BILLINGS CLINIC",
-                          "Collaborative Science & Innovation (CSI) - Documents",
-                          "Ye Olde V Drive",
-                          "STAFF Folders",
-                          "Ben",
-                          "test_mule_CSI Dissemination Annual.xlsx")
+df_proposals <- read_xlsx(fl_log,
+                          sheet = "irb_pe_proposals")
 
-df_studies <- read_excel(fl_nm,
-                     sheet = "studies")
+df_grants <- read_excel(fl_log,
+                        sheet = "grants")
 
-df_investigators <- read_excel(fl_nm,
-                               sheet = "investigators")
+df_studies <- read_excel(fl_log,
+                         sheet = "studies")
 
-df_si_key <- read_excel(fl_nm,
-                        sheet = "studies_investigators")
+df_datasets <- read_excel(fl_log,
+                          sheet = "datasets")
+
+df_dissem <- read_xlsx(fl_log,
+                       sheet = "publications")
+
+df_authors <- read_xlsx(fl_log,
+                        sheet = "authors")
+
+df_pub_auth_key <- read_xlsx(fl_log,
+                             sheet = "authors_and_publications")
+
+df_si_key <- read_excel(fl_log,
+                        sheet = "studies_and_investigators")
+
+df_grants_studies_key <- read_excel(fl_log,
+                                    sheet = "grants_studies")
+
+df_prop_study_key <- read_excel(fl_log,
+                                sheet = "proposal_study")
 
 # DATA CLEANING - Admin
 df_studies$study_stage <- factor(df_studies$study_stage,
@@ -46,52 +61,23 @@ df_studies$study_stage <- factor(df_studies$study_stage,
                                             "Submitted",
                                             "Accepted"))
 
-# PUBLISHING DATA
-# Load 
-df_manuscripts <- list(2021,
-                    2020,
-                    2019,
-                    2018)
-
-df_manuscripts <- 
-  lapply(df_manuscripts, 
-       function(x){
-         tmp_df <- read_excel(fl_nm_dissem,
-                              sheet = as.character(x))
-         
-         tmp_df[["Year"]] <- x
-         
-         return(tmp_df)
-       })
-
-df_manuscripts <- do.call("rbind", df_manuscripts)
 
 labels_df_manuscripts <- c("Authors",
-                            "Type of Publication",
-                            "Title",
-                            "Publication/Meeting",
-                            "Date of Publication/Presentation (per Pub Med)",
-                           "Total Citations",
-                           "Citations as of",
+                           "Type of Publication",
+                           "Title",
+                           "Publication/Meeting",
+                           "Date of Publication/Presentation (per Pub Med)",
+                           "Pubmed ID",
                            "Google Scholar ID",
-                           "PubMed ID",
-                           "Year")
-
-names(df_manuscripts) <- c("authors",
-                           "type",
-                           "title",
-                           "pub_body",
-                           "pub_dts",
-                           "total_citations",
-                           "worthless",
-                           "gsID",
-                           "pmID",
-                           "Year")
+                           "PI Google Scholar ID",
+                           "Include",
+                           "URL",
+                           "DOI")
 
 # GET NCBI DATA via iCite API
 # https://icite.od.nih.gov/api
 # journal subset
-pmids <- unique(df_manuscripts$pmID)
+pmids <- unique(df_dissem$pmid)
 pmids <- pmids[!is.na(pmids)]
 
 q <- paste(pmids, collapse = ",")
@@ -101,9 +87,10 @@ q <- paste("https://icite.od.nih.gov/api/pubs?pmids=",
 
 res <- GET(q)
 
-rawToChar(res$content)
+# rawToChar(res$content)
 man_meta <- fromJSON(rawToChar(res$content))
 df_man_meta <- man_meta$data
+
 
 # Other potential sources
 # https://www.ncbi.nlm.nih.gov/pmc/tools/get-metadata/
@@ -111,10 +98,54 @@ df_man_meta <- man_meta$data
 
 # AUTHOR GOOGLE SCHOLAR DATA
 # get author citation history
-get_article_cite_history(id = "Xj4zg4wAAAAJ", # author's GoogleScholarID
-                         article = "eflP2zaiRacC" # article's GoogleScholarID
-)
+# get_gs_stats <- function(x){
+#   
+#   googleScholarID <- x[1] 
+#   
+#   articleGSID <- x[2]
+#   
+#   
+#   x <- get_article_cite_history(id = googleScholarID,
+#                                 article = articleGSID)
+#   
+#   Sys.sleep(2)
+#   
+#   return(x)
+# }
+
+
+# test <- apply(df_manuscripts[c("gsID",
+#                                "pi_gsID")], 
+#               1, 
+#               get_gs_stats)
+
+
+# test <- get_article_cite_history(id = "Xj4zg4wAAAAJ", # author's GoogleScholarID
+#                          article = "eflP2zaiRacC" # article's GoogleScholarID
+# )
+
 # glimpse(df_manuscripts)
 
 
 # LOAD EMPLOYEE TIMESHEETS
+
+# fl_nm <- file.path("C:",
+#                    "Users",
+#                    "CarteB",
+#                    "OneDrive - BILLINGS CLINIC",
+#                    "goals.xlsx")
+# 
+# df_ts <- read_xlsx(fl_nm,
+#                    sheet = "timeTrackerData")
+# 
+# df_ts_studies <- read_xlsx(fl_nm,
+#                            sheet = "project_list")
+# 
+# df_ts <- df_ts %>% 
+#   mutate(
+#     time = as.numeric(dts_out - dts_in)
+#   ) %>% 
+#   mutate(
+#     fte_time = time/(40*60)
+#   )
+
