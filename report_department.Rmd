@@ -1,6 +1,6 @@
 ---
 title: "CSI Metrics 2021"
-author: "Geoffrey Williams, MD, PhD\nJeannine Brant, PhD"
+author: "Geoffrey Williams, MD, PhD\nDianna Linder, PhD"
 date: "Generated: `r Sys.time()`"
 output:
   html_document:
@@ -9,7 +9,7 @@ output:
     toc_float: true
   powerpoint_presentation:
     df_print: "kable"
-    slide_level: 2
+    # slide_level: 2
     # reference_doc: "style_template.pptx"
 params:
   format: "markdown"
@@ -47,7 +47,6 @@ REP_YEAR <- params$year
 # What is this?
 
 - It's just a slide deck of ideas.
-- Prototype report - i.e. unpolished, probably out of order and using a combination of real and fabricated data. Its a intellectual construction zone *so watch your step.*
 - I've been experimenting with various methods and metrics CSI could use to report on it's activities to stakeholders, methods of identifying needs and documenting success.
 - Goals:
   - Give CSI as much *useful* information as possible for planning and troubleshooting purposes.
@@ -55,40 +54,108 @@ REP_YEAR <- params$year
   - Automate as much as possible so referring to it often is actually possible.
   - Make it something we could host in a dashboard for regular viewing.
   
+# Questions I am trying to answer
 
+- What were we trying to do?
+- What did we have to do them?
+- Did we do it?
+- Post-mortem Examination of Performance
+- Goals for next year
+  
+# How we can answer them
 
-## Outline
+- What were we trying to do?
+  - **Goals** - Slide summarizing our department goals/objectives.
+  - **Key Performance indicators** - Metrics for measuring efficiency.
+- What did we have to do them?
+  - **CSI Overview** - Description of CSI's resources.
+- Did we do it?
+  - Slide showing which goals we did/didn't meet
+  - **Highlights** - Manually assembled slides, basically just a placeholder for the big successes we want to see individually.
+- Post-mortem Examination of Performance
+  - **Investigational Pipeline** - Methods of looking at our efficiency.
+  - **Dissemination** - Measures of publication success.
+  - **Financial**
+    - How have we used our money?
+    - What are we seeking? What do we need?
+    - Are we competitive relative to the "guns for hire?"
+  - **Personnel Load** - Ways at describing workload balance across individuals.
+  - **Marketing report** - how effectively did we market ourselves inside and outside the org?
+- Goals for next year
 
-- **CSI Overview** - Description of CSI's resources.
-- **Investigational Pipeline** - Methods of looking at our efficiency.
-- **Dissemination** - Measures of publication success.
-- **Highlights** - Manually assembled slides, basically just a placeholder for the big successes we want to see individually.
-- **Key Performance indicators** - Metrics for describing our success and efficiency.
-- **Financial** 
-  - How have we used our money?
-  - What are we seeking? What do we need?
-  - Are we competitive relative to the "guns for hire?"
-- **Personnel Load** - Ways at describing workload balance across individuals.
-- **Ideas for marketing** - self explanatory.
+# Cautions
+
+This is a prototype report - i.e. unpolished, probably out of order and using a combination of real and fabricated data. Its a intellectual construction zone *so watch your step.*
+
+Only the dissemination section uses real data.
+
+Everything else should not be trusted!
 
 ---
 
 ![ - Tim](http://www.quickmeme.com/img/f7/f7aa3ce72feed0a88c9401b5b51bc667e0fdb33d233b69c2c786f94c578bdd8e.jpg)
+
+# Goals for `r REP_YEAR`
+
+- What were they? (ideas below)
+  - Number of Publications
+  - Number of Programs/Research Supported
+  - Number of Grants won
+
+# Key Performance Indicators
+
+These are all potential methods I came up with to measure the performance of CSI in terms of productivity and efficiency in producing research and supporting organizational priorities.
+
+## Primary
+
+- Total Publications for `r REP_YEAR`: `r nrow(df_dissem[df_dissem$year == REP_YEAR,])`
+  - Journal Publications: `r nrow(df_dissem[df_dissem$year == REP_YEAR & df_dissem$type == "Journal",])`
+  - Trauma: 10
+  - MAGNATE: 10
+  - Grant 1: 10
+- Department Impact factor: $Citations\ of\ year/publications_{year-1} + publications_{year-2}$
+
+## Efficiency Indicators
+
+We'll have to build some tables and databases to support these:
+
+- Time in Backlog
+- Ratio of study Active/Inactive time
+- Publications/proposal - need to table linking pubs to proposals
+- Publications/submission - need table linking submissions to pubs
+- Manuscripts/dataset - need table linking manuscripts to datasets
+- Manuscripts/proposal - need table linking manuscripts to proposal
+- Manuscripts/dataset - need table linking dataset to manuscripts
+- Work hours/proposal - need employee timetracking sheets
+- Work hours/dataset - need employee timetracking sheets
+- Work hours/analysis - need employee timetracking sheets
+- Work hours/manuscript - need employee timetracking sheets
+
+## Financial Indicators
+
+- Cost/publication - need expense data
+- Publications/Dollar spent
+- Cost/Trauma publication
+- FTE by role per publication/production stage
 
 # CSI Overview
 
 ## Team 
 
 ```{r}
-df_investigators %>% 
+df_authors %>% 
   filter(
-    department == "CSI"
+    department == "CSI" &
+      !is.na(fte_status)
   ) %>% 
   select(
-    Name = name,
+    Name = pm_name,
     Degree = degree,
     Role = role,
     `FTE Status` = fte_status
+  ) %>% 
+  arrange(
+    Role
   ) %>% 
   knitr::kable(
     format = "simple"
@@ -112,6 +179,22 @@ df_investigators %>%
 
 - MSU College of Nursing
 - MSU Engineering School
+
+# Highlights
+
+## Trauma
+- Started Research Teams, got 8 manuscripts ready to go by December
+- Critical Care Team A - 2 proposals, 3 manuscripts
+- Critical Care Team B - 3 proposals, 2 manuscripts
+- Nursing Team - 2 proposals, 4 manuscripts
+- Neuro/Ortho Team - 2 proposals
+
+## Magnet
+- 3 studies
+- 4 new PIs
+
+## MOONSHOT
+- Placeholder
 
 # Investigation Pipeline
 
@@ -155,7 +238,7 @@ df_studies %>%
 df_studies %>% 
   ggplot(
     aes(x = study_stage
-        ,fill = Program
+        ,fill = program
         )
   ) + 
   geom_bar() +
@@ -169,7 +252,7 @@ df_studies %>%
 df_studies %>% 
   ggplot(
     aes(x = study_stage
-        ,fill = Program
+        ,fill = program
         )
   ) + 
   geom_bar() +
@@ -208,7 +291,7 @@ df_studies %>%
 ```{r}
 df_studies %>% 
   ggplot(
-    aes(x = Program,
+    aes(x = program,
         fill = activity_status)
   ) +
   geom_bar() +
@@ -259,18 +342,42 @@ data.frame(perc_time = c(0.5,
 
 ## 2021 Publications
 
-```{r}
+```{r results='asis'}
 
-df_manuscripts %>% 
+# make variable for csi authored publications
+ar_csi_dissem <- df_pub_auth_key %>% 
+  full_join(
+    df_authors,
+    by = "investigator_id"
+  ) %>% 
   filter(
-    Year == "2021"
+    department == "CSI"
+  ) %>% 
+  select(
+    publication_id
+  ) %>% 
+  distinct()
+
+df_dissem %>%
+  filter(
+    year == "2021"
+  ) %>% 
+  group_by(
+    type
+  ) %>% 
+  summarize(
+    n = n()
   ) %>% 
   ggplot(
     aes(
-      x = type
+      x = type,
+      y = n,
+      label = n
     )
   ) +
-  geom_bar() +
+  geom_col(fill = "blue",
+           alpha = 0.3) +
+  geom_text(nudge_y = 1) +
   theme_classic() +
   labs(
     title = "2021 Publications",
@@ -278,93 +385,530 @@ df_manuscripts %>%
     y = "Count"
   )
 
+cat("\n---\n")
+
+ar_bc_dissem <- df_pub_auth_key %>% 
+  full_join(
+    df_authors,
+    by = "investigator_id"
+  ) %>% 
+  filter(
+    organization == "Billings Clinic"
+  ) %>% 
+  select(
+    publication_id
+  ) %>% 
+  distinct()
+
+df_dissem %>%
+  filter(
+    year == "2021"
+  ) %>% 
+  group_by(
+    type,
+    csi_support
+  ) %>% 
+  summarize(
+    n = n()
+  ) %>% 
+  ungroup() %>% 
+  ggplot(
+    aes(
+      x = type,
+      y = n,
+      fill = csi_support
+    )
+  ) +
+  geom_col(alpha = 0.5,
+           position = "stack") +
+  geom_text(aes(label = n,
+                y = n + 0.1),
+            position = position_stack(vjust = 0.5),
+            alpha = 0.7) +
+  theme_classic() +
+  labs(
+    title = "2021 Publications",
+    x = "Type",
+    y = "Count",
+    fill = "CSI Support"
+  )
+
+cat("\n---\n")
+
+df_dissem %>%  
+  filter(
+    year == REP_YEAR
+  ) %>% 
+  left_join(
+    df_pub_auth_key,
+    by = "publication_id"
+  ) %>% 
+  left_join(
+    df_authors,
+    by = "investigator_id"
+  ) %>% 
+  filter(
+    department == "CSI"
+  ) %>% 
+  ggplot(
+    aes(
+      x = pm_name,
+      fill = pm_name
+    )
+  ) +
+  geom_bar() +
+  theme_classic() +
+  labs(
+    title = "2021 Publications",
+    x = "Type",
+    y = "Count",
+    fill = "CSI authors"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  )
+
 ```
 
 ## Publications by Year
 
-```{r}
-df_manuscripts %>% 
+```{r results='asis'}
+# all publications
+df_dissem %>%
+  group_by(
+    year
+  ) %>% 
+  summarize(
+    n = n()
+  ) %>% 
+  ungroup() %>% 
   ggplot(
     aes(
-      x = type,
-      fill = as.character(Year)
+      x = year,
+      y = n,
+      label = n
     )
   ) +
-  geom_bar(stat = "count",
-           position = "dodge") +
+  geom_col(fill = "blue",
+           alpha = 0.3) +
+  geom_text(nudge_y = 1) +
+  theme_classic() +
+  labs(
+    title = "Publications",
+    x = "Year",
+    y = "Count"
+  )
+
+
+
+# big four categories
+df_dissem %>%
+  group_by(
+    year,
+    type
+  ) %>% 
+  summarize(
+    n = n()
+  ) %>% 
+  ungroup() %>% 
+  ggplot(
+    aes(
+      x = year,
+      y = n,
+      label = n
+    )
+  ) +
+  geom_col(fill = "blue",
+           alpha = 0.3) +
+  geom_text(nudge_y = 1) +
   theme_classic() +
   labs(
     title = "Publications",
     x = "Type",
-    y = "Count",
-    fill = "Year"
-  ) 
-
-df_manuscripts %>%  
-  ggplot(
-    aes(
-      x = as.character(Year)
-    )
-  ) +
-  geom_bar(stat = "count") +
-  theme_classic() +
-  labs(
-    title = "Publications",
-    x = "Year",
     y = "Count"
-  ) +
+  ) + 
   facet_wrap(type~.)
 
-df_manuscripts %>% 
+cat("\n---\n")
+
+df_dissem %>%
+  filter(
+    type %in% c("Poster",
+                "Presentation",
+                "Journal",
+                "Book/Book Chapter")
+  ) %>% 
   group_by(
-    Year,
+    year,
     type
   ) %>% 
-  summarise(
-    N = n()
-  ) %>%
+  summarize(
+    n = n()
+  ) %>% 
   ungroup() %>% 
   ggplot(
     aes(
-      x = Year,
-      y = N
+      x = year,
+      y = n,
+      label = n
     )
   ) +
-  geom_point() +
-  geom_line() +
+  geom_col(fill = "blue",
+           alpha = 0.3) +
+  geom_text(nudge_y = 1) +
+  theme_classic() +
+  labs(
+    title = "Publications",
+    x = "Type",
+    y = "Count"
+  ) + 
+  facet_wrap(type~.)
+
+cat("\n---\n")
+
+df_dissem %>%
+  filter(
+    year < 2022,
+    type %in% c("Poster",
+                "Presentation",
+                "Journal",
+                "Book/Book Chapter")
+  ) %>% 
+  group_by(
+    year,
+    type,
+    csi_support
+  ) %>% 
+  summarize(
+    n = n()
+  ) %>% 
+  ungroup() %>% 
+  ggplot(
+    aes(
+      x = year,
+      y = n,
+      fill = csi_support
+    )
+  ) +
+  facet_wrap(type~.) +
+  geom_col(alpha = 0.5,
+           position = "stack") +
+  geom_text(aes(label = n,
+                y = n + 0.1),
+            position = position_stack(vjust = 0.5),
+            alpha = 0.7) +
   theme_classic() +
   labs(
     title = "Publications",
     x = "Year",
-    y = "Count"
+    y = "Count",
+    fill = "CSI Support"
+  )
+  
+```
+
+## Proportion Indexed in PubMed
+
+```{r}
+tmp <- df_dissem %>% 
+  filter(
+    type == "Journal"
+  ) %>% 
+  mutate(
+    indexed = case_when(
+      !is.na(pmid) ~ TRUE,
+      is.na(pmid) ~ FALSE
+    )
+  )
+
+tmp %>% 
+  ggplot(
+    aes(
+      x = year,
+      fill = indexed
+    )
   ) +
-  facet_wrap(type~.)
-
-
-table(df_manuscripts$type,df_manuscripts$Year)
+  geom_histogram(position = "fill") +
+  theme_classic() +
+  labs(
+    title = "Proportion of Journal Articles Indexed in PubMed",
+    y = "Count",
+    x = "Year",
+    fill = "Indexed?"
+  ) +
+  scale_x_continuous(breaks = unique(tmp$year))
 
 ```
 
+
 ## Citations by PubMed Indexed Articles
 
-```{r}
+```{r results='asis'}
+# cumulative citations
 df_man_meta %>% 
+  group_by(
+    year
+  ) %>% 
+  summarise(
+    citation_count = sum(citation_count)
+  ) %>% 
   ggplot(
     aes(
       x = year,
       y = citation_count
     )
   ) +
-  geom_bar(
-    stat = "sum"
-  ) +
+  geom_point() +
+  geom_line() +
   theme_classic() +
   labs(
-    title = "Cumulative Citations by PubMed Articles",
+    title = "Cumulative Citations of PubMed Articles",
     x = "Year Published",
     y = "Count",
-    caption = "Citations are aggregated according to the year of the cited article. Citations were identified via iCite, an API provided by the National Library of Medicine. Articles not yet assigned a PMID not included."
+    caption = "Citations are aggregated according to the year of the cited article. \nCitations were identified via iCite, an API provided by the National Library of Medicine. Articles not yet assigned a PMID not included."
+  ) +
+  scale_x_continuous(breaks = unique(df_dissem$year))
+
+cat("\n---\n")
+  
+# citations within the first 3 years of publication
+df_report_citations <- df_man_meta %>% 
+  select(
+    manuscript_pmid = pmid,
+    manuscript_year = year
+  ) %>% 
+  left_join(
+    df_cited_by,
+    by = c("manuscript_pmid")
+  ) %>% 
+  left_join(
+    df_cited_by_meta[c("pmid","year")],
+    by = c("cited_by_pmid" = "pmid")
   )
+
+# cumulative 3 year report
+df_report_citations %>% 
+  filter(
+    year - manuscript_year <= 3
+  ) %>% 
+  group_by(
+    manuscript_year
+  ) %>% 
+  summarise(
+    n = n()
+  ) %>% 
+  ggplot(
+    aes(
+      x = manuscript_year,
+      y = n
+    )
+  ) +
+  geom_point() +
+  geom_line() +
+  theme_classic() +
+  labs(
+    title = "Citations within 3 years of publication",
+    x = "Year",
+    y = "Citations"
+  )
+
+cat("\n---\n")
+
+# normalized by number of papers published that year and marked by authorship
+tmp <- ar_csi_dissem %>% 
+  left_join(
+    df_dissem,
+    by = "publication_id"
+  ) %>% 
+  select(
+    pmid
+  ) %>% 
+  filter(
+    !is.na(pmid)
+  ) %>% 
+  distinct()
+
+tmp <- tmp$pmid
+
+df_report_total_publications <- df_report_citations %>% 
+  select(
+    manuscript_pmid,
+    manuscript_year
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    authorship = if_else(
+      manuscript_pmid %in% tmp,
+      "Yes",
+      "No"
+    )
+  ) %>% 
+  group_by(
+    authorship,
+    manuscript_year
+  ) %>% 
+  summarise(
+    n_published = n()
+  ) %>% 
+  ungroup()
+
+plt <- df_report_citations %>% 
+  mutate(
+    authorship = if_else(
+      manuscript_pmid %in% tmp,
+      "Yes",
+      "No"
+      )
+    ) %>% 
+  filter(
+    year - manuscript_year <=3
+  ) %>% 
+  group_by(
+    authorship,
+    manuscript_year
+  ) %>% 
+  summarise(
+    n_citations = n()
+  ) %>% 
+  ungroup() %>% 
+  filter(
+    !is.na(manuscript_year)
+  ) %>% 
+  full_join(
+    df_report_total_publications,
+    by = c("authorship",
+           "manuscript_year")
+  ) %>% 
+  mutate(
+    cp_ratio = n_citations/n_published
+  )
+
+plt %>% 
+  ggplot(
+    aes(
+      x = manuscript_year,
+      y = cp_ratio,
+      color = authorship
+    )
+  ) +
+  geom_line() +
+  geom_point() +
+  theme_classic() +
+  labs(
+    title = "3 year citation ratio",
+    x = "Year of Publication",
+    y = "Ratio",
+    color = "CSI Author Present?"
+  ) +
+  scale_x_continuous(breaks = unique(df_dissem$year)) +
+  annotate(
+    "text",
+    x = REP_YEAR-0.5,
+    y = max(plt$cp_ratio, na.rm = TRUE)-1,
+    label = "Incomplete\ndata"
+  ) +
+  annotate(
+    "rect",
+    xmin = REP_YEAR-2,
+    xmax = REP_YEAR+1,
+    ymin = 0,
+    ymax = max(plt$cp_ratio, na.rm = TRUE),
+    alpha = 0.2
+  )
+
+```
+
+## NIH Percentile of Journal Article Relative Citation Ratio
+
+```{r}
+
+df_man_meta %>% 
+  ggplot(
+    aes(
+      x = year,
+      y = nih_percentile
+    )
+  ) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  theme_classic() +
+  labs(
+    title = "NIH Percentile Rank of Journal Article RCR",
+    x = "Year",
+    y = "NIH Percentile"
+    # ,caption = paste0(sum(is.na(df_man_meta$nih_percentile)),
+    #                  " journal publications indexed in PubMed are not yet ranked.")
+  ) +
+  scale_x_continuous(breaks = unique(df_dissem$year))
+
+tmp <- df_dissem %>% 
+  select(
+    -year
+  ) %>% 
+  full_join(
+    df_man_meta,
+    by = c("pmid")
+  ) %>% 
+  filter(
+    year > 2014,
+    type %in% c("Journal",
+                "Journal - BC")
+  ) %>%
+  distinct()
+
+tmp %>% 
+  filter(
+    year < REP_YEAR
+  ) %>% 
+  ggplot(
+    aes(
+      x = year,
+      y = nih_percentile
+    )
+  ) +
+  geom_point() +
+  geom_smooth(method = "loess",
+              se = TRUE,
+              alpha = 0.3) +
+  theme_classic() +
+  labs(
+    title = "NIH Percentile Rank of Article RCR",
+    x = "Year",
+    y = "NIH Percentile"
+  ) +
+  scale_x_continuous(breaks = unique(df_dissem$year))
+
+
+# df_pub_auth_key %>% 
+#   full_join(
+#     df_authors,
+#     by = "investigator_id"
+#   ) %>% 
+#   full_join(
+#     df_dissem,
+#     by = "publication_id"
+#   ) %>% 
+#   select(
+#     pm_name,
+#     pmid,
+#     year,
+#     publication_id,
+#     investigator_id
+#   ) %>% 
+#   full_join(
+#     df_man_meta,
+#     by = c("pmid", "year")
+#   ) %>% 
+#   select(
+#     -pm_name
+#   ) %>% 
+#   distinct(pmid) %>% 
+#   arrange(
+#     nih_percentile
+#   ) %>% 
+#   knitr::kable(format = "simple")
+
 ```
 
 ## Most Cited Article
@@ -387,6 +931,8 @@ tmp <-
 tmp <- paste("\n\n",
              tmp$year,
              ". ",
+             tmp$authors,
+             ". ",
              tmp$title,
              " *",
              tmp$journal,
@@ -396,58 +942,6 @@ tmp <- paste("\n\n",
 cat(tmp)
 
 ```
-
-# Highlights
-
-## Trauma
-- Started Research Teams, got 8 manuscripts ready to go by December
-- Critical Care Team A - 2 proposals, 3 manuscripts
-- Critical Care Team B - 3 proposals, 2 manuscripts
-- Nursing Team - 2 proposals, 4 manuscripts
-- Neuro/Ortho Team - 2 proposals
-
-## Magnet
-- 3 studies
-- 4 new PIs
-
-## MOONSHOT
-- Placeholder
-
-# Key Performance Indicators
-
-These are all potential methods I came up with to measure the performance of CSI in terms of productivity and efficiency in producing research and supporting organizational priorities.
-
-## Primary
-
-- Total Publications for `r REP_YEAR`: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR,])`
-  - Journal Publications: `r nrow(df_manuscripts[df_manuscripts$Year == REP_YEAR & df_manuscripts$type == "Journal",])`
-  - Trauma: 10
-  - MAGNATE: 10
-  - Grant 1: 10
-- Department Impact factor: $Citations\ of\ year/publications_{year-1} + publications_{year-2}$
-
-## Efficiency Indicators
-
-We'll have to build some tables and databases to support these:
-
-- Time in Backlog
-- Ratio of study Active/Inactive time
-- Publications/proposal - need to table linking pubs to proposals
-- Publications/submission - need table linking submissions to pubs
-- Manuscripts/dataset - need table linking manuscripts to datasets
-- Manuscripts/proposal - need table linking manuscripts to proposal
-- Manuscripts/dataset - need table linking dataset to manuscripts
-- Work hours/proposal - need employee timetracking sheets
-- Work hours/dataset - need employee timetracking sheets
-- Work hours/analysis - need employee timetracking sheets
-- Work hours/manuscript - need employee timetracking sheets
-
-## Financial Indicators
-
-- Cost/publication - need expense data
-- Publications/Dollar spent
-- Cost/Trauma publication
-- FTE by role per publication/production stage
 
 # Financial 
 ## Expenses
@@ -492,7 +986,7 @@ data.frame(cost = c(50000,
 
 ## Savings to Organization
 
-The existence of "guns for hire" for getting ACS Level 1 certification means we have external competition. The best protection against this is a demonstration of our market value (everything we've demonstrated so far) plus a show of how much money we save the organization relative to that competition. This builds the case for our mainanence and expansion.
+The existence of "guns for hire" for getting ACS Level 1 certification means we have external competition. The best protection against this is a demonstration of our market value (everything we've demonstrated so far) plus a show of how much money we save the organization relative to that competition. This builds the case for our maintanence and expansion.
 
 This would be displayed basically as Our Costs - Competition Costs = Net Savings
 
@@ -500,14 +994,16 @@ This would be displayed basically as Our Costs - Competition Costs = Net Savings
 
 ## Purpose
 
-This section discusses things that can be used to assess the workload across the organization, who has capacity for extra projects, and who could use a break.
+This section explores ways to assess the workload across the organization, who has capacity for extra projects, and who could use some help.
+
+Data supporting these slides are *largely fabricated* so **don't get any ideas** about what the results do or do not imply.
 
 ## CSI Personnel Load
 
 ```{r}
 df_si_key %>% 
   left_join(
-    df_investigators,
+    df_authors,
     by = "investigator_id"
   ) %>%
   left_join(
@@ -519,16 +1015,16 @@ df_si_key %>%
     department == "CSI"
   ) %>% 
   group_by(
-    name,
-    Program
+    pm_name,
+    program
   ) %>% 
   summarise(
     count = n()
   ) %>% 
   ggplot(
-    aes(x = reorder(name,count),
+    aes(x = reorder(pm_name,count),
         y = count,
-        fill = Program)
+        fill = program)
   ) +
   geom_bar(stat='identity') +
   coord_flip() +
@@ -545,7 +1041,7 @@ df_si_key %>%
 ```{r}
 df_si_key %>% 
   left_join(
-    df_investigators,
+    df_authors,
     by = "investigator_id"
   ) %>%
   left_join(
@@ -558,16 +1054,16 @@ df_si_key %>%
     role == "Scientist"
   ) %>% 
   group_by(
-    name,
-    Program
+    pm_name,
+    program
   ) %>% 
   summarise(
     count = n()
   ) %>% 
   ggplot(
-    aes(x = reorder(name,count),
+    aes(x = reorder(pm_name,count),
         y = count,
-        fill = Program)
+        fill = program)
   ) +
   geom_bar(stat='identity') +
   coord_flip() +
@@ -584,7 +1080,7 @@ df_si_key %>%
 - How are work hours used by role on each program? Each stage of the scientific process? By role?
 - Could show by as proportion of FTE, total hours, etc.
 
-```{r}
+```{r eval=FALSE}
 df_ts %>% 
   group_by(
     id_type
@@ -613,9 +1109,7 @@ df_ts %>%
   )
 ```
 
-
-
-# Ideas for Marketing
+# Marketing
 
 What follows are some ideas for new things we should be tracking at least internally to measure our imapct in the scientific community.
 
@@ -636,6 +1130,8 @@ What follows are some ideas for new things we should be tracking at least intern
 
 - LinkedIn/ResearchGate articles - clicks, links, comments, etc.
 - Videos produced: 4
+- Nature Cell Biology: [Social media for scientists](https://www.nature.com/articles/s41556-018-0253-6)
+- Science: [Scientists on Twitter: Preaching to the choir or singing from the rooftops?](https://www.facetsjournal.com/doi/10.1139/facets-2018-0002)
 
 ### Old
 
@@ -643,4 +1139,9 @@ What follows are some ideas for new things we should be tracking at least intern
 - National Gazette articles: 5
 - TV/Radio appearances: 4
 
-# Thoughts
+# Goals for next year
+
+- What are they?
+
+# Unstructured thoughts
+asdf
